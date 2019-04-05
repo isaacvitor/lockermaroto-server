@@ -5,9 +5,13 @@ const helmet = require('helmet');
 const methodOverride = require('method-override');
 const morgan = require('morgan');
 const path = require('path');
+
 const routes = require('./routes');
+const mongoose = require('../config/mongoose.config');
 
 const app = express();
+const server = require('http').Server(app);
+const io = require('socket.io')(server);
 
 //Middlewares
 app.use(bodyParser.json());
