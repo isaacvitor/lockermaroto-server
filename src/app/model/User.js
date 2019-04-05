@@ -1,4 +1,6 @@
-const { mongoose, Schema } = require('mongoose');
+const mongoose = require('mongoose');
+const { Schema } = mongoose;
+const bcrypt = require('bcryptjs');
 
 const RoleSchema = new Schema({
   name: { type: String, required: true, default: 'user' },
@@ -10,7 +12,12 @@ const UserSchema = new Schema({
   user: { type: String, required: true, unique: true },
   pass: { type: String, require: true },
   ekey: { type: String },
-  role: RoleSchema
+  isadmin: { type: Boolean, required: true, default: false }
+});
+UserSchema.pre('save', async function(next) {
+  this.pass = await bcrypt.hash(this.pass, 8);
+  next();
 });
 const User = mongoose.model('User', UserSchema);
+
 module.exports = User;
