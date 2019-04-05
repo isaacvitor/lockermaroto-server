@@ -6,7 +6,8 @@ const RoleSchema = new Schema({
 });
 
 const UserSchema = new Schema({
-  user: { type: String, required: true },
+  name: { type: String, required: true },
+  user: { type: String, required: true, unique: true },
   pass: { type: String, require: true },
   ekey: { type: String },
   role: RoleSchema
