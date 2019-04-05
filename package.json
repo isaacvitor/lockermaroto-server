@@ -1,11 +1,11 @@
 {
-  "name": "lockermaroto-back",
+  "name": "lockermaroto-server",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon src/index.js"
   },
-  "repository": "https://github.com/isaacvitor/lockermaroto-back.git",
+  "repository": "https://github.com/isaacvitor/lockermaroto-server.git",
   "author": "Isaac Vitor <isaacvitor@gmail.com>",
   "license": "MIT",
   "dependencies": {
