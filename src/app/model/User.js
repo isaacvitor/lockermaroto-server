@@ -10,14 +10,12 @@ const RoleSchema = new Schema({
 const UserSchema = new Schema({
   name: { type: String, required: true },
   user: { type: String, required: true, unique: true },
-  pass: { type: String, require: true },
-  ekey: { type: String },
+  pass: { type: String, required: true },
+  ekey: { type: String, index: true, unique: true },
   isadmin: { type: Boolean, required: true, default: false }
 });
 UserSchema.pre('save', async function(next) {
   this.pass = await bcrypt.hash(this.pass, 8);
   next();
 });
-const User = mongoose.model('User', UserSchema);
-
-module.exports = User;
+module.exports = mongoose.model('User', UserSchema);
