@@ -14,6 +14,11 @@ const UserSchema = new Schema({
   ekey: { type: String, index: true, unique: true },
   isadmin: { type: Boolean, required: true, default: false }
 });
+
+UserSchema.methods.checkPassword = function(pass) {
+  return bcrypt.compare(pass, this.pass);
+};
+
 UserSchema.pre('save', async function(next) {
   this.pass = await bcrypt.hash(this.pass, 8);
   next();
