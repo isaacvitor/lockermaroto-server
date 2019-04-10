@@ -1,9 +1,9 @@
 require('dotenv').config({
-  path: process.env.NODE_ENV === 'test' ? '.env.development' : '.env.production'
+  path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development'
 });
 
-const app = require('./app');
+const { app, server } = require('./app');
 
-app.listen(process.env.NAPP_PORT, () => {
+server.listen(process.env.NAPP_PORT,'0.0.0.0', () => {
   console.log(`${process.env.NAPP_NAME} listening on port: ${process.env.NAPP_PORT}`);
 });
