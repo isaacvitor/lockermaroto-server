@@ -17,11 +17,15 @@ module.exports = {
       if (!loginUser) {
         return res.status(401).send({ error: 'Login invalid' });
       }
-      if (!loginUser.checkPassword(pass)) {
+
+      if (!(await loginUser.checkPassword(pass))) {
         return res.status(401).json({ message: 'Login invalid' });
       }
-
-      res.send(generateToken(loginUser));
+      const loginData = {
+        user: { _id: loginUser._id, isAdmin: loginUser.isadmin, name: loginUser.name },
+        token: generateToken(user)
+      };
+      res.send(loginData);
     } catch (error) {
       res.status(500).send({ error: error.message });
     }
