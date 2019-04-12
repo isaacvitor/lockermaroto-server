@@ -22,8 +22,7 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const state = new LockerState();
-      const lockerCreated = await Locker.create({ ...req.body, state });
+      const lockerCreated = await Locker.create(req.body);
       res.send({ lockerCreated });
     } catch (error) {
       res.status(500).send({ error: error.message });
@@ -53,6 +52,38 @@ module.exports = {
       res.send(await mergedLocker.save());
     } catch (error) {
       res.status(500).send({ error: error.message });
+    }
+  },
+
+  async keyWith(req, res) {
+    try {
+      if (!req.params.id) throw new Error('Locker._id required');
+
+      const keyWith = req.body;
+      const lockerDB = await Locker.findById(req.params.id);
+      if (lockerDB === null) {
+        throw new TypeError('Locker._id is invalid');
+      }
+      lockerDB.keyWith = keyWith;
+      res.send(await lockerDB.save());
+    } catch (error) {
+      res.status(500).send({ error: error.message });
+    }
+  },
+
+  async register(locker) {
+    try {
+      lockerToUpdate = await Locker.findOne({ mac: locker.mac });
+      if (lockerToUpdate) {
+        lockerToUpdate.name = locker.name;
+        await lockerToUpdate.save();
+        return lockerToUpdate;
+      } else {
+        const lockerCreated = await Locker.create({ mac: locker.mac, name: locker.name });
+        return lockerCreated;
+      }
+    } catch (error) {
+      console.log({ error: error.message });
     }
   }
 };

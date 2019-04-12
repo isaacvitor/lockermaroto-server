@@ -16,11 +16,21 @@ const UserEKeySchema = new Schema(
   { _id: false, id: false }
 );
 
+const KeyWithSchema = new Schema(
+  {
+    user: { type: Schema.Types.Mixed, required: true },
+    startAt: { type: Date, required: true, default: Date.now },
+    endAt: { type: Date, required: true, default: () => Date.now() + 5000 }
+  },
+  { _id: false, id: false }
+);
+
 const LockerSchema = new Schema({
   name: { type: String, required: true, unique: true },
   mac: { type: String, required: true, unique: true },
   users: { type: [UserEKeySchema] },
-  state: { type: LockerStateSchema, required: true }
+  keyWith: KeyWithSchema,
+  state: { type: LockerStateSchema }
 });
 
 module.exports = mongoose.model('Locker', LockerSchema);
