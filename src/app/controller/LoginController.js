@@ -11,6 +11,7 @@ const generateToken = function(user) {
 module.exports = {
   async login(req, res) {
     const { user, pass } = req.body;
+
     try {
       const loginUser = await User.findOne({ user });
 
