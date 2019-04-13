@@ -10,12 +10,12 @@ module.exports = {
     }
   },
 
-  async create(req, res) {
+  async create(req, res, next) {
     try {
       const userCreated = await User.create(req.body);
       res.send({ userCreated });
     } catch (error) {
-      res.status(500).send({ error: error.message });
+      next(error);
     }
   },
 
@@ -40,7 +40,7 @@ module.exports = {
     }
   },
 
-  async update(req, res) {
+  async update(req, res, next) {
     try {
       if (!req.params.id) throw new Error('User._id required');
 
@@ -49,7 +49,7 @@ module.exports = {
       const mergedUser = Object.assign(userDB, userToUpdate);
       res.send(await mergedUser.save());
     } catch (error) {
-      res.status(500).send({ error: error.message });
+      next(error);
     }
   }
 };

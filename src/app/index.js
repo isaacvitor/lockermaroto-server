@@ -8,6 +8,7 @@ const path = require('path');
 
 const routes = require('./routes');
 const mongoose = require('../config/mongoose.config');
+const mongooseMidllewareHandle = require('./middleware/mongoose');
 
 const app = express();
 const server = require('http').Server(app);
@@ -29,6 +30,7 @@ app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname + '/view/index.html'));
 });
 
+//IO
 const io = require('socket.io')(server);
 const LockerController = require('./controller/LockerController');
 let SOCKET_LOCKERS = {};
@@ -67,17 +69,18 @@ const ioUsers = io.of('users').on('connection', function(socket) {
   });
 });
 
-//Devices
+//Lockers
 io.on('connection', function(socket) {
   console.log('Device connected');
+
   socket.on('lockerState', async function(data) {
     console.log('Locker State', data);
-    const { pins } = data;
+    const { pins, locker } = data;
     if (!pins.isRegister) {
       try {
         const result = await LockerController.register({
-          mac: data.mac,
-          name: data.name
+          mac: locker.mac,
+          name: locker.name
         });
         console.log('Register result', result);
         SOCKET_LOCKERS[result.mac] = socket;
@@ -86,17 +89,22 @@ io.on('connection', function(socket) {
         console.log('Register error:', error);
       }
     }
-    SOCKET_LOCKERS[data.mac] = SOCKET_LOCKERS[data.mac] ? SOCKET_LOCKERS[data.mac] : socket;
+    SOCKET_LOCKERS[locker.mac] = SOCKET_LOCKERS[locker.mac] ? SOCKET_LOCKERS[locker.mac] : socket;
     console.log('Locker State', data);
     ioUsers.emit('updateLockerState', data);
     //socket.emit('lock', { hello: 'world' });
   });
 
-  /* socket.on('lockerRegister', async function(data) {
-    const result = LockerController.register(data);
-    console.log('Locker Register', data);
-    socket.emit('lckRegisterResp', { ok: true, id: result._id });
-  }); */
+  socket.on('lockerUpdateStateByUser', async function(data) {
+    console.log('Locker State BY User', data);
+    ioUsers.emit('updateLockerState', data);
+  });
+
+  socket.on('lockerUID', async function(data) {
+    console.log('Locker UID', data);
+    ioUsers.emit('lockerReadUID', data);
+    //socket.emit('lock', { hello: 'world' });
+  });
 });
 
 app.use((req, res, next) => {
@@ -104,5 +112,7 @@ app.use((req, res, next) => {
   req.ioUsers = ioUsers;
   next();
 });
+
+app.use(mongooseMidllewareHandle);
 
 module.exports = { app, io, server };
