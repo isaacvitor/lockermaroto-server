@@ -8,19 +8,19 @@ Aberto = (Porta aberta + trava aberta + lckStateDetector=False) => lckState=[0,0
 Desconhecido = Em tese apenas no servidor, caso o mesmo não tenha comunicação com o locker registrado.=> lckState=undefined
  */
 
-const UserEKeySchema = new Schema(
+const EKeyUserSchema = new Schema(
   {
-    user_id: { type: Schema.Types.ObjectId, required: true, unique: true },
-    user_ekey: { type: String, unique: true }
+    _id: { type: Schema.Types.ObjectId, required: true },
+    name: { type: String, required: [true, 'O Nome do usuário é requerido'] },
+    ekey: { type: String, required: true }
   },
   { _id: false, id: false }
 );
 
-const KeyWithSchema = new Schema(
+const RemoteUserSchema = new Schema(
   {
-    user: { type: Schema.Types.Mixed, required: true },
-    startAt: { type: Date, required: true, default: Date.now },
-    endAt: { type: Date, required: true, default: () => Date.now() + 5000 }
+    _id: { type: Schema.Types.ObjectId, required: true },
+    name: { type: String, required: [true, 'O Nome do usuário é requerido'] }
   },
   { _id: false, id: false }
 );
@@ -28,8 +28,9 @@ const KeyWithSchema = new Schema(
 const LockerSchema = new Schema({
   name: { type: String, required: true, unique: true },
   mac: { type: String, required: true, unique: true },
-  users: { type: [UserEKeySchema] },
-  keyWith: KeyWithSchema,
+  eKeyUsers: { type: [EKeyUserSchema] },
+  remoteUsers: { type: [RemoteUserSchema] },
+  preferences: { type: Schema.Types.Mixed },
   state: { type: LockerStateSchema }
 });
 

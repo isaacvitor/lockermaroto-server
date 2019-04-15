@@ -20,16 +20,6 @@ app.use(helmet());
 app.use(methodOverride('X-HTTP-Method-Override'));
 app.use(morgan(':method :url :status :res[content-length] - :response-time ms'));
 
-//Routes
-app.use(routes);
-
-//Server React Static File
-app.use(express.static(path.join(__dirname, 'view')));
-
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname + '/view/index.html'));
-});
-
 //IO
 const io = require('socket.io')(server);
 const LockerController = require('./controller/LockerController');
@@ -90,7 +80,7 @@ io.on('connection', function(socket) {
       }
     }
     SOCKET_LOCKERS[locker.mac] = SOCKET_LOCKERS[locker.mac] ? SOCKET_LOCKERS[locker.mac] : socket;
-    console.log('Locker State', data);
+    //console.log('Locker State', data);
     ioUsers.emit('updateLockerState', data);
     //socket.emit('lock', { hello: 'world' });
   });
@@ -108,9 +98,19 @@ io.on('connection', function(socket) {
 });
 
 app.use((req, res, next) => {
-  req.ioDevices = ioDevices;
+  req.ioDevices = io;
   req.ioUsers = ioUsers;
   next();
+});
+
+//Routes
+app.use(routes);
+
+//Server React Static File
+app.use(express.static(path.join(__dirname, 'view')));
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname + '/view/index.html'));
 });
 
 app.use(mongooseMidllewareHandle);
