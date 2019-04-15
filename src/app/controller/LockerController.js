@@ -55,19 +55,49 @@ module.exports = {
     }
   },
 
-  async keyWith(req, res) {
+  async updateRemoteUsers(req, res, next) {
     try {
       if (!req.params.id) throw new Error('Locker._id required');
 
-      const keyWith = req.body;
+      const remoteUsers = req.body;
       const lockerDB = await Locker.findById(req.params.id);
       if (lockerDB === null) {
-        throw new TypeError('Locker._id is invalid');
+        throw new TypeError('Locker not found');
       }
-      lockerDB.keyWith = keyWith;
+      lockerDB.remoteUsers = remoteUsers;
       res.send(await lockerDB.save());
     } catch (error) {
-      res.status(500).send({ error: error.message });
+      next(error);
+    }
+  },
+
+  async updateEKeyUsers(req, res, next) {
+    try {
+      if (!req.params.id) throw new Error('Locker._id required');
+
+      const eKeyUsers = req.body;
+      const lockerDB = await Locker.findById(req.params.id);
+      if (lockerDB === null) {
+        throw new TypeError('Locker not found');
+      }
+      lockerDB.eKeyUsers = eKeyUsers;
+      const savedLocker = await lockerDB.save();
+
+      const ioDevices = req.ioDevices;
+      let ekeys = [];
+      savedLocker.eKeyUsers.forEach(e => {
+        ekeys.push(e.ekey);
+      });
+      const payload = { mac: lockerDB.mac, ekeys: ekeys };
+      console.log('payload', payload);
+      ioDevices.emit('updateUsers', payload);
+      res.send(savedLocker);
+
+      //! TODO Adcionar salvamento no device
+    } catch (error) {
+      console.log('------ updateEKeyUsers -------');
+      console.log(error);
+      next(error);
     }
   },
 
